@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍛 Mama's Kitchen - Digital Menu</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .cart-fab { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 40; }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+  <!-- Header -->
+  <header class="bg-green-600 text-white p-4 shadow-md sticky top-0 z-30">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <h1 class="text-xl font-bold">🍛 Mama's Kitchen</h1>
+      <span class="text-sm opacity-90">Tap to order</span>
+    </div>
+  </header>
+
+  <!-- Menu Grid -->
+  <main class="max-w-4xl mx-auto p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 mb-24" id="menu-container">
+    <!-- JS renders menu cards here -->
+  </main>
+
+  <!-- Floating Cart Button -->
+  <button id="cart-fab" class="cart-fab bg-green-600 text-white p-4 rounded-full shadow-xl hover:bg-green-700 transition">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+    </svg>
+    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold">0</span>
+  </button>
+
+  <!-- Cart Modal -->
+  <div id="cart-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-end sm:items-center">
+    <div class="bg-white w-full sm:max-w-md mx-4 rounded-t-2xl sm:rounded-2xl shadow-2xl p-6 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Your Order</h2>
+        <button id="close-cart" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+      </div>
+      <div id="cart-items" class="space-y-3 mb-4 min-h-[60px]">
+        <p id="empty-cart-msg" class="text-gray-400 text-center py-4">Your cart is empty.</p>
+      </div>
+      <div class="border-t pt-4 flex justify-between font-bold text-lg">
+        <span>Total:</span>
+        <span id="cart-total">GHS 0.00</span>
+      </div>
+      <button id="whatsapp-order-btn" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed">
+        Order via WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ========== YOUR MENU DATA – EDIT THIS ==========
+    const menuItems = [
+      { id: 1, name: "Jollof Rice with Chicken", price: 25, image: "https://images.unsplash.com/photo-1604329760661-e71dc83c8f26?w=400&h=300&fit=crop" },
+      { id: 2, name: "Waakye & Gari", price: 15, image: "https://images.unsplash.com/photo-1553621042-f6e147245754?w=400&h=300&fit=crop" },
+      { id: 3, name: "Fried Plantain & Beans", price: 18, image: "https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&h=300&fit=crop" },
+      { id: 4, name: "Grilled Tilapia", price: 35, image: "https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?w=400&h=300&fit=crop" },
+      { id: 5, name: "Banku & Okro Stew", price: 20, image: "https://images.unsplash.com/photo-1567337710282-00832b415979?w=400&h=300&fit=crop" },
+      { id: 6, name: "Soft Drink (Coke/Fanta)", price: 5, image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=300&fit=crop" }
+    ];
+
+    // ========== RESTAURANT SETTINGS – EDIT THESE ==========
+    const restaurantName = "Mama's Kitchen";
+    const whatsappNumber = "233201234567"; // Put real number with country code, no +
+
+    // ========== CART LOGIC (no changes needed) ==========
+    let cart = [];
+
+    const menuContainer = document.getElementById('menu-container');
+    const cartFab = document.getElementById('cart-fab');
+    const cartCountSpan = document.getElementById('cart-count');
+    const cartModal = document.getElementById('cart-modal');
+    const closeCartBtn = document.getElementById('close-cart');
+    const cartItemsDiv = document.getElementById('cart-items');
+    const emptyCartMsg = document.getElementById('empty-cart-msg');
+    const cartTotalSpan = document.getElementById('cart-total');
+    const whatsappOrderBtn = document.getElementById('whatsapp-order-btn');
+
+    function renderMenu() {
+      menuItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition';
+        card.innerHTML = `
+          <img src="${item.image}" alt="${item.name}" class="w-full h-40 object-cover">
+          <div class="p-4">
+            <h3 class="font-semibold text-gray-800">${item.name}</h3>
+            <p class="text-green-600 font-bold mt-1">GHS ${item.price.toFixed(2)}</p>
+            <button data-id="${item.id}" class="add-to-cart mt-3 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-medium transition">Add to Cart</button>
+          </div>
+        `;
+        menuContainer.appendChild(card);
+      });
+      document.querySelectorAll('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', (e) => addToCart(parseInt(e.target.dataset.id)));
+      });
+    }
+
+    function addToCart(id) {
+      const existing = cart.find(item => item.id === id);
+      existing ? existing.quantity++ : cart.push({ id, quantity: 1 });
+      updateCartUI();
+    }
+
+    function removeFromCart(id) {
+      cart = cart.filter(item => item.id !== id);
+      updateCartUI();
+    }
+
+    function updateQuantity(id, delta) {
+      const item = cart.find(item => item.id === id);
+      if (item) {
+        item.quantity += delta;
+        if (item.quantity <= 0) removeFromCart(id);
+      }
+      updateCartUI();
+    }
+
+    function getCartTotal() {
+      return cart.reduce((total, cartItem) => {
+        const menuItem = menuItems.find(m => m.id === cartItem.id);
+        return total + (menuItem ? menuItem.price * cartItem.quantity : 0);
+      }, 0);
+    }
+
+    function renderCartItems() {
+      if (cart.length === 0) {
+        emptyCartMsg.classList.remove('hidden');
+        cartItemsDiv.innerHTML = '';
+        cartItemsDiv.appendChild(emptyCartMsg);
+      } else {
+        emptyCartMsg.classList.add('hidden');
+        cartItemsDiv.innerHTML = '';
+        cart.forEach(cartItem => {
+          const menuItem = menuItems.find(m => m.id === cartItem.id);
+          if (!menuItem) return;
+          const line = document.createElement('div');
+          line.className = 'flex justify-between items-center';
+          line.innerHTML = `
+            <div class="flex-1">
+              <p class="text-sm font-medium">${menuItem.name}</p>
+              <p class="text-xs text-gray-500">GHS ${menuItem.price.toFixed(2)} each</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button class="qty-dec text-gray-500 hover:text-gray-700 px-2 py-1 rounded" data-id="${menuItem.id}">-</button>
+              <span class="w-6 text-center">${cartItem.quantity}</span>
+              <button class="qty-inc text-gray-500 hover:text-gray-700 px-2 py-1 rounded" data-id="${menuItem.id}">+</button>
+            </div>
+          `;
+          line.querySelector('.qty-dec').addEventListener('click', () => updateQuantity(menuItem.id, -1));
+          line.querySelector('.qty-inc').addEventListener('click', () => updateQuantity(menuItem.id, 1));
+          cartItemsDiv.appendChild(line);
+        });
+      }
+    }
+
+    function updateCartUI() {
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      cartCountSpan.textContent = totalItems;
+      renderCartItems();
+      cartTotalSpan.textContent = `GHS ${getCartTotal().toFixed(2)}`;
+      whatsappOrderBtn.disabled = cart.length === 0;
+    }
+
+    function buildWhatsAppMessage() {
+      if (cart.length === 0) return '';
+      let message = `Hello ${restaurantName},\n\nI would like to order:\n`;
+      cart.forEach(cartItem => {
+        const menuItem = menuItems.find(m => m.id === cartItem.id);
+        if (menuItem) message += `- ${cartItem.quantity}x ${menuItem.name} (GHS ${(menuItem.price * cartItem.quantity).toFixed(2)})\n`;
+      });
+      message += `\nTotal: GHS ${getCartTotal().toFixed(2)}\n\nPlease deliver to: [your address/table number]\nThank you!`;
+      return encodeURIComponent(message);
+    }
+
+    function sendWhatsAppOrder() {
+      if (cart.length === 0) return;
+      window.open(`https://wa.me/${whatsappNumber}?text=${buildWhatsAppMessage()}`, '_blank');
+    }
+
+    // Event listeners
+    cartFab.addEventListener('click', () => { cartModal.classList.remove('hidden'); updateCartUI(); });
+    closeCartBtn.addEventListener('click', () => cartModal.classList.add('hidden'));
+    cartModal.addEventListener('click', (e) => { if (e.target === cartModal) cartModal.classList.add('hidden'); });
+    whatsappOrderBtn.addEventListener('click', sendWhatsAppOrder);
+
+    // Start
+    renderMenu();
+    updateCartUI();
+  </script>
+</body>
+  </html>

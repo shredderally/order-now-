@@ -42,21 +42,21 @@
     .price { font-weight: 700; color: var(--primary); font-size: 14px; }
     .add-btn { width: 100%; padding: 8px; margin-top: 10px; background: #f0f0f0; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
 
-    /* Modifiers Modal */
+    /* Modals */
     .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
     .modal { position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: var(--card); border-radius: 20px 20px 0 0; z-index: 100; transform: translateY(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; max-height: 90vh; }
     .modal.open { transform: translateY(0); }
     .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .modal-header h2 { font-size: 18px; }
     .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
-    
+
     .modal-content { padding: 20px; overflow-y: auto; }
     .modifier-group { margin-bottom: 20px; }
     .modifier-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text-muted); }
     .modifier-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
     .modifier-label { display: flex; align-items: center; gap: 10px; font-size: 15px; }
     .modifier-price { color: var(--text-muted); font-size: 14px; }
-    
+
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
     .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; }
@@ -64,13 +64,12 @@
     .tab { flex: 1; text-align: center; padding: 8px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
     .tab.active { background: var(--card); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-    /* Floating Cart Bar (replaces FAB) */
+    /* Floating Cart */
     .floating-cart { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 460px; background: var(--primary); color: white; padding: 15px 20px; border-radius: 12px; display: none; justify-content: space-between; align-items: center; z-index: 90; cursor: pointer; box-shadow: 0 4px 15px rgba(0,128,128,0.3); }
     .cart-count { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 14px; font-weight: bold; }
     .cart-action { font-weight: bold; font-size: 16px; }
     .cart-total { font-weight: bold; }
 
-    /* Modal footer */
     .modal-footer { padding: 20px; border-top: 1px solid var(--border); }
     .btn-primary { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
 
@@ -107,9 +106,7 @@
     <div class="cat-btn" data-category="drinks">Drinks</div>
   </div>
 
-  <div class="grid" id="menuGrid">
-    <!-- Products rendered by JS -->
-  </div>
+  <div class="grid" id="menuGrid"></div>
 
   <!-- Floating Cart -->
   <div class="floating-cart" id="floatingCart" onclick="openCheckoutModal()">
@@ -127,9 +124,7 @@
     <button class="close-btn" onclick="closeProductModal()">×</button>
   </div>
   <div class="modal-content">
-    <div class="modifier-group" id="modifierGroup">
-      <!-- modifiers injected -->
-    </div>
+    <div class="modifier-group" id="modifierGroup"></div>
     <div class="form-group">
       <label>Special notes</label>
       <input type="text" id="specialNotes" class="form-control" placeholder="Any special requests...">
@@ -149,17 +144,26 @@
   </div>
   <div class="modal-content">
     <div class="order-type-tabs" id="orderTypeTabs">
-      <div class="tab active" data-type="Takeaway">Takeaway</div>
+      <div class="tab active" data-type="Dine-in">Dine‑in</div>
       <div class="tab" data-type="Delivery">Delivery</div>
     </div>
 
+    <div class="form-group" id="tableGroup">
+      <label>Table Number</label>
+      <input type="number" id="tableNumberInput" class="form-control" placeholder="Your table number" min="1">
+    </div>
+
+    <div class="form-group" id="locationGroup" style="display: none;">
+      <label>Delivery Location</label>
+      <input type="text" id="deliveryLocation" class="form-control" placeholder="Your address or landmark">
+    </div>
+
     <div class="form-group">
-      <label>Name</label>
+      <label>Your Name</label>
       <input type="text" id="custName" class="form-control" placeholder="Your name" required>
     </div>
-    
     <div class="form-group">
-      <label>Phone</label>
+      <label>Phone Number</label>
       <input type="tel" id="custPhone" class="form-control" placeholder="024 XXX XXXX" required>
     </div>
 
@@ -180,17 +184,17 @@
 <script>
   // ============ CONFIGURATION ============
   const restaurantName = "MenuBox Demo";
-  const merchantWhatsApp = "233504186141"; // Dummy number for demo
+  const merchantWhatsApp = "233504186141"; // Dummy demo number
 
   // Table number from URL (?table=4)
   const urlParams = new URLSearchParams(window.location.search);
-  const tableNumber = urlParams.get('table') || '';
+  const urlTableNumber = urlParams.get('table') || '';
 
   // ============ PRODUCT DATA ============
   const menuItems = [
     {
       id: 1,
-      name: "Jollof Rice with Chicken",
+      name: "Classic Ghanaian Jollof",
       description: "Classic Ghanaian jollof served with fried chicken and plantain.",
       price: 25,
       image: "https://images.unsplash.com/photo-1604329760661-e71dc83c8f26?w=500&q=80",
@@ -215,7 +219,7 @@
     {
       id: 4,
       name: "Chicken Tikka Masala & Naan",
-      description: "Tender marinated chicken chunks simmered in a rich, spiced creamy tomato curry sauce, served alongside warm, buttery garlic naan..",
+      description: "Tender marinated chicken chunks simmered in a rich, spiced creamy tomato curry sauce, served alongside warm, buttery garlic naan.",
       price: 99,
       image: "https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?w=500&q=80",
       category: "main"
@@ -239,10 +243,10 @@
   ];
 
   // ============ CART STATE ============
-  let cart = []; // { id, name, price, modifiers: [], notes: "" }
-  let currentProduct = null; // product being customized in modal
+  let cart = [];
+  let currentProduct = null;
 
-  // ============ DOM ELEMENTS ============
+  // ============ DOM REFERENCES ============
   const menuGrid = document.getElementById('menuGrid');
   const searchInput = document.getElementById('searchInput');
   const categoryBar = document.getElementById('categoryBar');
@@ -262,8 +266,15 @@
   const checkoutModal = document.getElementById('checkoutModal');
   const custName = document.getElementById('custName');
   const custPhone = document.getElementById('custPhone');
+  const tableGroup = document.getElementById('tableGroup');
+  const locationGroup = document.getElementById('locationGroup');
+  const tableNumberInput = document.getElementById('tableNumberInput');
+  const deliveryLocation = document.getElementById('deliveryLocation');
+  const orderTypeTabs = document.getElementById('orderTypeTabs');
 
-  // ============ RENDER MENU ============
+  let currentOrderType = 'Dine-in';
+
+  // ============ MENU RENDERING ============
   function renderMenu(items) {
     menuGrid.innerHTML = '';
     items.forEach(item => {
@@ -278,7 +289,6 @@
           <button class="add-btn" data-id="${item.id}">Add</button>
         </div>
       `;
-      // Add click listener to open product modal
       card.querySelector('.add-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         openProductModal(item);
@@ -287,22 +297,16 @@
     });
   }
 
-  // ============ FILTERS (Search + Category) ============
+  // Filter
   let activeCategory = 'all';
   function filterMenu() {
-    const searchTerm = searchInput.value.toLowerCase();
+    const term = searchInput.value.toLowerCase();
     let filtered = menuItems;
-    if (activeCategory !== 'all') {
-      filtered = filtered.filter(item => item.category === activeCategory);
-    }
-    if (searchTerm) {
-      filtered = filtered.filter(item => item.name.toLowerCase().includes(searchTerm) || item.description.toLowerCase().includes(searchTerm));
-    }
+    if (activeCategory !== 'all') filtered = filtered.filter(i => i.category === activeCategory);
+    if (term) filtered = filtered.filter(i => i.name.toLowerCase().includes(term) || i.description.toLowerCase().includes(term));
     renderMenu(filtered);
   }
-
   searchInput.addEventListener('input', filterMenu);
-
   categoryBar.addEventListener('click', (e) => {
     if (e.target.classList.contains('cat-btn')) {
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -312,12 +316,11 @@
     }
   });
 
-  // ============ PRODUCT MODAL ============
+  // ============ PRODUCT MODAL (Add-ons) ============
   function openProductModal(item) {
     currentProduct = item;
     modalProductTitle.textContent = item.name;
     specialNotes.value = '';
-    // Build modifier checkboxes (example: Tea/Coffee add-ons)
     modifierGroup.innerHTML = `
       <div class="modifier-title">Add-ons (optional)</div>
       <label class="modifier-row">
@@ -340,18 +343,14 @@
       </label>
     `;
     updateModalPrice();
-    // Attach change listeners to checkboxes
     document.querySelectorAll('.mod-checkbox').forEach(cb => cb.addEventListener('change', updateModalPrice));
-    // Show modal
     productOverlay.style.display = 'block';
     setTimeout(() => productModal.classList.add('open'), 10);
   }
 
   function updateModalPrice() {
     let total = currentProduct.price;
-    document.querySelectorAll('.mod-checkbox:checked').forEach(cb => {
-      total += parseFloat(cb.dataset.price);
-    });
+    document.querySelectorAll('.mod-checkbox:checked').forEach(cb => total += parseFloat(cb.dataset.price));
     modalAddPrice.textContent = `₵${total.toFixed(2)}`;
   }
 
@@ -360,7 +359,6 @@
     setTimeout(() => productOverlay.style.display = 'none', 300);
   }
 
-  // Add to cart from modal
   addToCartModalBtn.addEventListener('click', () => {
     const modifiers = [];
     let extraCost = 0;
@@ -370,7 +368,6 @@
     });
     const notes = specialNotes.value.trim();
     const finalPrice = currentProduct.price + extraCost;
-    // Add to cart
     cart.push({
       id: currentProduct.id,
       name: currentProduct.name,
@@ -378,7 +375,7 @@
       modifiers,
       notes
     });
-    // Fly animation from modal button to floating cart bar
+    // Fly animation
     const btnRect = addToCartModalBtn.getBoundingClientRect();
     const cartRect = floatingCart.getBoundingClientRect();
     flyAnimation(currentProduct.image, btnRect, cartRect);
@@ -403,7 +400,7 @@
     flyEl.style.opacity = '0.9';
     document.body.appendChild(flyEl);
 
-    flyEl.getBoundingClientRect(); // force reflow
+    flyEl.getBoundingClientRect();
     flyEl.style.left = endX - 20 + 'px';
     flyEl.style.top = endY - 20 + 'px';
     flyEl.style.width = '20px';
@@ -413,7 +410,7 @@
     flyEl.addEventListener('transitionend', () => flyEl.remove());
   }
 
-  // ============ CART LOGIC ============
+  // ============ CART UI ============
   function updateCartUI() {
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     const count = cart.length;
@@ -424,7 +421,6 @@
     } else {
       floatingCart.style.display = 'none';
     }
-    // Update checkout total as well
     checkoutTotal.textContent = `₵${total.toFixed(2)}`;
     renderCheckoutItems();
   }
@@ -442,42 +438,63 @@
     });
   }
 
-  // ============ CHECKOUT MODAL ============
-  let orderType = 'Takeaway';
-  // if table number exists, default to dine-in
-  if (tableNumber) {
-    orderType = 'Dine-in';
-    // Adjust the tabs
-    document.getElementById('orderTypeTabs').innerHTML = `
-      <div class="tab active" data-type="Dine-in">Dine-in (Table ${tableNumber})</div>
-      <div class="tab" data-type="Takeaway">Takeaway</div>
-      <div class="tab" data-type="Delivery">Delivery</div>
-    `;
-  } else {
-    document.getElementById('orderTypeTabs').innerHTML = `
-      <div class="tab active" data-type="Takeaway">Takeaway</div>
-      <div class="tab" data-type="Delivery">Delivery</div>
-    `;
-  }
-  // reattach tab listeners
-  document.querySelectorAll('#orderTypeTabs .tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-      document.querySelectorAll('#orderTypeTabs .tab').forEach(t => t.classList.remove('active'));
-      this.classList.add('active');
-      orderType = this.dataset.type;
-    });
-  });
-
+  // ============ CHECKOUT MODAL LOGIC ============
   function openCheckoutModal() {
+    if (urlTableNumber) {
+      currentOrderType = 'Dine-in';
+      tableNumberInput.value = urlTableNumber;
+      tableNumberInput.disabled = true;
+      document.querySelector('#orderTypeTabs .tab[data-type="Dine-in"]').classList.add('active');
+      document.querySelector('#orderTypeTabs .tab[data-type="Delivery"]').classList.remove('active');
+      tableGroup.style.display = 'block';
+      locationGroup.style.display = 'none';
+    } else {
+      currentOrderType = 'Dine-in';
+      tableNumberInput.value = urlTableNumber;
+      tableNumberInput.disabled = true;
+      document.querySelector('#orderTypeTabs .tab[data-type="Dine-in"]').classList.add('active');
+      document.querySelector('#orderTypeTabs .tab[data-type="Delivery"]').classList.remove('active');
+      tableGroup.style.display = 'block';
+      locationGroup.style.display = 'none';
+    } else {
+      currentOrderType = 'Dine-in';
+      tableNumberInput.value = '';
+      tableNumberInput.disabled = false;
+      document.querySelector('#orderTypeTabs .tab[data-type="Dine-in"]').classList.add('active');
+      document.querySelector('#orderTypeTabs .tab[data-type="Delivery"]').classList.remove('active');
+      tableGroup.style.display = 'block';
+      locationGroup.style.display = 'none';
+    }
     checkoutOverlay.style.display = 'block';
     setTimeout(() => checkoutModal.classList.add('open'), 10);
-    // Pre-fill name/phone if previously entered?
   }
 
   function closeCheckoutModal() {
     checkoutModal.classList.remove('open');
     setTimeout(() => checkoutOverlay.style.display = 'none', 300);
   }
+
+  orderTypeTabs.addEventListener('click', (e) => {
+    if (e.target.classList.contains('tab')) {
+      document.querySelectorAll('#orderTypeTabs .tab').forEach(t => t.classList.remove('active'));
+      e.target.classList.add('active');
+      currentOrderType = e.target.dataset.type;
+      if (currentOrderType === 'Dine-in') {
+        tableGroup.style.display = 'block';
+        locationGroup.style.display = 'none';
+        if (urlTableNumber) {
+          tableNumberInput.value = urlTableNumber;
+          tableNumberInput.disabled = true;
+        } else {
+          tableNumberInput.disabled = false;
+        }
+      } else { // Delivery
+        tableGroup.style.display = 'none';
+        locationGroup.style.display = 'block';
+        deliveryLocation.value = '';
+      }
+    }
+  });
 
   // ============ SEND WHATSAPP ORDER ============
   function sendOrderToWhatsApp() {
@@ -488,11 +505,31 @@
       return;
     }
 
-    let total = cart.reduce((sum, item) => sum + item.price, 0);
-    let message = `*NEW ORDER* 🚨\n\n*From:* ${name}\n*Phone:* ${phone}\n*Type:* ${orderType}\n`;
-    if (tableNumber) {
-      message += `*Table:* ${tableNumber}\n`;
+    if (currentOrderType === 'Dine-in') {
+      const table = tableNumberInput.value.trim();
+      if (!table) {
+        alert("Please enter your table number.");
+        return;
+      }
     }
+    if (currentOrderType === 'Delivery') {
+      const location = deliveryLocation.value.trim();
+      if (!location) {
+        alert("Please enter your delivery location.");
+        return;
+      }
+    }
+
+    let total = cart.reduce((sum, item) => sum + item.price, 0);
+    let message = `*NEW ORDER* 🚨\n\n*From:* ${name}\n*Phone:* ${phone}\n*Type:* ${currentOrderType}\n`;
+
+    if (currentOrderType === 'Dine-in') {
+      message += `*Table:* ${tableNumberInput.value}\n`;
+    }
+    if (currentOrderType === 'Delivery') {
+      message += `*Location:* ${deliveryLocation.value}\n`;
+    }
+
     message += `\n*Order Details:*\n`;
     cart.forEach(item => {
       message += `-----------------------\n• ${item.name} - ₵${item.price.toFixed(2)}`;
@@ -502,11 +539,10 @@
     });
     message += `-----------------------\n*TOTAL: ₵${total.toFixed(2)}*\n\nI am ready to pay.`;
 
-    const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/${merchantWhatsApp}?text=${encoded}`, '_blank');
+    window.open(`https://wa.me/${merchantWhatsApp}?text=${encodeURIComponent(message)}`, '_blank');
   }
 
-  // ============ INITIAL RENDER ============
+  // ============ INIT ============
   renderMenu(menuItems);
   updateCartUI();
 </script>

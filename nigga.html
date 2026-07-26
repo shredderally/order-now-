@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MenuBox Demo | Digital Menu with WhatsApp Ordering</title>
+  <style>
+    :root {
+      --primary: #008080;
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --text-dark: #111111;
+      --text-muted: #666666;
+      --border: #eaeaea;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background: var(--bg); color: var(--text-dark); padding-bottom: 90px; }
+
+    .app-container { max-width: 500px; margin: 0 auto; background: var(--bg); min-height: 100vh; position: relative; }
+
+    /* Header */
+    header { background: var(--card); padding: 15px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    .header-top { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+    .logo-placeholder { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; }
+    header h1 { font-size: 18px; font-weight: 700; }
+    .search-bar { width: 100%; padding: 10px 15px; background: #f0f0f0; border: none; border-radius: 8px; font-size: 14px; outline: none; }
+
+    /* Categories */
+    .categories { display: flex; gap: 10px; overflow-x: auto; padding: 15px 20px; scrollbar-width: none; }
+    .categories::-webkit-scrollbar { display: none; }
+    .cat-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); font-size: 14px; font-weight: 500; white-space: nowrap; cursor: pointer; }
+    .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* Product Grid */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; }
+    .product-card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .product-img { width: 100%; height: 120px; background: #ddd; object-fit: cover; }
+    .product-info { padding: 12px; }
+    .product-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; line-height: 1.2; }
+    .product-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .price { font-weight: 700; color: var(--primary); font-size: 14px; }
+    .add-btn { width: 100%; padding: 8px; margin-top: 10px; background: #f0f0f0; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+    /* Modifiers Modal */
+    .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99; display: none; }
+    .modal { position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: 0 auto; background: var(--card); border-radius: 20px 20px 0 0; z-index: 100; transform: translateY(100%); transition: transform 0.3s ease; display: flex; flex-direction: column; max-height: 90vh; }
+    .modal.open { transform: translateY(0); }
+    .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h2 { font-size: 18px; }
+    .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted); }
+    
+    .modal-content { padding: 20px; overflow-y: auto; }
+    .modifier-group { margin-bottom: 20px; }
+    .modifier-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text-muted); }
+    .modifier-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .modifier-label { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+    .modifier-price { color: var(--text-muted); font-size: 14px; }
+    
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+    .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; }
+    .order-type-tabs { display: flex; background: #f0f0f0; border-radius: 8px; padding: 4px; margin-bottom: 20px; }
+    .tab { flex: 1; text-align: center; padding: 8px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .tab.active { background: var(--card); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+    /* Floating Cart Bar (replaces FAB) */
+    .floating-cart { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 460px; background: var(--primary); color: white; padding: 15px 20px; border-radius: 12px; display: none; justify-content: space-between; align-items: center; z-index: 90; cursor: pointer; box-shadow: 0 4px 15px rgba(0,128,128,0.3); }
+    .cart-count { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 14px; font-weight: bold; }
+    .cart-action { font-weight: bold; font-size: 16px; }
+    .cart-total { font-weight: bold; }
+
+    /* Modal footer */
+    .modal-footer { padding: 20px; border-top: 1px solid var(--border); }
+    .btn-primary { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+    /* Fly animation */
+    .fly-item {
+      position: fixed;
+      z-index: 200;
+      pointer-events: none;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <div class="header-top">
+      <div class="logo-placeholder">📦</div>
+      <div>
+        <h1>MenuBox Demo</h1>
+        <p style="font-size: 12px; color: var(--text-muted);">📍 Accra • Today: 07:00 - 22:00</p>
+      </div>
+    </div>
+    <input type="text" class="search-bar" placeholder="Search menu..." id="searchInput">
+  </header>
+
+  <div class="categories" id="categoryBar">
+    <div class="cat-btn active" data-category="all">All</div>
+    <div class="cat-btn" data-category="main">Main Dishes</div>
+    <div class="cat-btn" data-category="sides">Sides</div>
+    <div class="cat-btn" data-category="drinks">Drinks</div>
+  </div>
+
+  <div class="grid" id="menuGrid">
+    <!-- Products rendered by JS -->
+  </div>
+
+  <!-- Floating Cart -->
+  <div class="floating-cart" id="floatingCart" onclick="openCheckoutModal()">
+    <div class="cart-count" id="cartCountBadge">0 items</div>
+    <div class="cart-action">View Cart</div>
+    <div class="cart-total" id="cartTotalBadge">₵0.00</div>
+  </div>
+</div>
+
+<!-- Product Options Modal -->
+<div class="overlay" id="productOverlay" onclick="closeProductModal()"></div>
+<div class="modal" id="productModal">
+  <div class="modal-header">
+    <h2 id="modalProductTitle"></h2>
+    <button class="close-btn" onclick="closeProductModal()">×</button>
+  </div>
+  <div class="modal-content">
+    <div class="modifier-group" id="modifierGroup">
+      <!-- modifiers injected -->
+    </div>
+    <div class="form-group">
+      <label>Special notes</label>
+      <input type="text" id="specialNotes" class="form-control" placeholder="Any special requests...">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-primary" id="addToCartModalBtn">Add to Cart - <span id="modalAddPrice">₵0.00</span></button>
+  </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="overlay" id="checkoutOverlay" onclick="closeCheckoutModal()"></div>
+<div class="modal" id="checkoutModal">
+  <div class="modal-header">
+    <h2>Your Order</h2>
+    <button class="close-btn" onclick="closeCheckoutModal()">×</button>
+  </div>
+  <div class="modal-content">
+    <div class="order-type-tabs" id="orderTypeTabs">
+      <div class="tab active" data-type="Takeaway">Takeaway</div>
+      <div class="tab" data-type="Delivery">Delivery</div>
+    </div>
+
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="custName" class="form-control" placeholder="Your name" required>
+    </div>
+    
+    <div class="form-group">
+      <label>Phone</label>
+      <input type="tel" id="custPhone" class="form-control" placeholder="024 XXX XXXX" required>
+    </div>
+
+    <div id="checkoutItems" style="margin: 15px 0; border-top: 1px solid var(--border); padding-top: 15px;"></div>
+
+    <div style="padding-top: 15px; border-top: 1px solid var(--border);">
+      <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-bottom: 20px;">
+        <span>Total</span>
+        <span id="checkoutTotal">₵0.00</span>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-primary" style="background: #25D366;" onclick="sendOrderToWhatsApp()">Send Order via WhatsApp</button>
+  </div>
+</div>
+
+<script>
+  // ============ CONFIGURATION ============
+  const restaurantName = "MenuBox Demo";
+  const merchantWhatsApp = "233000000000"; // Dummy number for demo
+
+  // Table number from URL (?table=4)
+  const urlParams = new URLSearchParams(window.location.search);
+  const tableNumber = urlParams.get('table') || '';
+
+  // ============ PRODUCT DATA ============
+  const menuItems = [
+    {
+      id: 1,
+      name: "Jollof Rice with Chicken",
+      description: "Classic Ghanaian jollof served with fried chicken and plantain.",
+      price: 25,
+      image: "https://images.unsplash.com/photo-1604329760661-e71dc83c8f26?w=500&q=80",
+      category: "main"
+    },
+    {
+      id: 2,
+      name: "Waakye & Gari",
+      description: "Waakye with spaghetti, egg, stew, and shito.",
+      price: 15,
+      image: "https://images.unsplash.com/photo-1553621042-f6e147245754?w=500&q=80",
+      category: "main"
+    },
+    {
+      id: 3,
+      name: "Kelewele (Spiced Plantain)",
+      description: "Fried ripe plantains seasoned with ginger, pepper, and spices.",
+      price: 18,
+      image: "https://images.unsplash.com/photo-1574484284002-952d92456975?w=500&q=80",
+      category: "sides"
+    },
+    {
+      id: 4,
+      name: "Grilled Tilapia with Banku",
+      description: "Whole tilapia grilled with pepper sauce, served with banku.",
+      price: 35,
+      image: "https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?w=500&q=80",
+      category: "main"
+    },
+    {
+      id: 5,
+      name: "Banku & Okro Stew",
+      description: "Soft banku with okro stew and crab.",
+      price: 20,
+      image: "https://images.unsplash.com/photo-1567337710282-00832b415979?w=500&q=80",
+      category: "main"
+    },
+    {
+      id: 6,
+      name: "Soft Drink (Coke/Fanta)",
+      description: "Chilled 330ml can.",
+      price: 5,
+      image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=500&q=80",
+      category: "drinks"
+    }
+  ];
+
+  // ============ CART STATE ============
+  let cart = []; // { id, name, price, modifiers: [], notes: "" }
+  let currentProduct = null; // product being customized in modal
+
+  // ============ DOM ELEMENTS ============
+  const menuGrid = document.getElementById('menuGrid');
+  const searchInput = document.getElementById('searchInput');
+  const categoryBar = document.getElementById('categoryBar');
+  const floatingCart = document.getElementById('floatingCart');
+  const cartCountBadge = document.getElementById('cartCountBadge');
+  const cartTotalBadge = document.getElementById('cartTotalBadge');
+  const checkoutTotal = document.getElementById('checkoutTotal');
+  const checkoutItems = document.getElementById('checkoutItems');
+  const productOverlay = document.getElementById('productOverlay');
+  const productModal = document.getElementById('productModal');
+  const modalProductTitle = document.getElementById('modalProductTitle');
+  const modifierGroup = document.getElementById('modifierGroup');
+  const specialNotes = document.getElementById('specialNotes');
+  const modalAddPrice = document.getElementById('modalAddPrice');
+  const addToCartModalBtn = document.getElementById('addToCartModalBtn');
+  const checkoutOverlay = document.getElementById('checkoutOverlay');
+  const checkoutModal = document.getElementById('checkoutModal');
+  const custName = document.getElementById('custName');
+  const custPhone = document.getElementById('custPhone');
+
+  // ============ RENDER MENU ============
+  function renderMenu(items) {
+    menuGrid.innerHTML = '';
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.innerHTML = `
+        <img src="${item.image}" alt="${item.name}" class="product-img">
+        <div class="product-info">
+          <div class="product-title">${item.name}</div>
+          <div class="product-desc">${item.description}</div>
+          <div class="price">₵${item.price.toFixed(2)}</div>
+          <button class="add-btn" data-id="${item.id}">Add</button>
+        </div>
+      `;
+      // Add click listener to open product modal
+      card.querySelector('.add-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        openProductModal(item);
+      });
+      menuGrid.appendChild(card);
+    });
+  }
+
+  // ============ FILTERS (Search + Category) ============
+  let activeCategory = 'all';
+  function filterMenu() {
+    const searchTerm = searchInput.value.toLowerCase();
+    let filtered = menuItems;
+    if (activeCategory !== 'all') {
+      filtered = filtered.filter(item => item.category === activeCategory);
+    }
+    if (searchTerm) {
+      filtered = filtered.filter(item => item.name.toLowerCase().includes(searchTerm) || item.description.toLowerCase().includes(searchTerm));
+    }
+    renderMenu(filtered);
+  }
+
+  searchInput.addEventListener('input', filterMenu);
+
+  categoryBar.addEventListener('click', (e) => {
+    if (e.target.classList.contains('cat-btn')) {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      activeCategory = e.target.dataset.category;
+      filterMenu();
+    }
+  });
+
+  // ============ PRODUCT MODAL ============
+  function openProductModal(item) {
+    currentProduct = item;
+    modalProductTitle.textContent = item.name;
+    specialNotes.value = '';
+    // Build modifier checkboxes (example: Tea/Coffee add-ons)
+    modifierGroup.innerHTML = `
+      <div class="modifier-title">Add-ons (optional)</div>
+      <label class="modifier-row">
+        <div class="modifier-label">
+          <input type="checkbox" class="mod-checkbox" value="Extra Meat" data-price="8"> Extra Meat
+        </div>
+        <div class="modifier-price">+₵8.00</div>
+      </label>
+      <label class="modifier-row">
+        <div class="modifier-label">
+          <input type="checkbox" class="mod-checkbox" value="Drink Upgrade" data-price="5"> Drink Upgrade
+        </div>
+        <div class="modifier-price">+₵5.00</div>
+      </label>
+      <label class="modifier-row">
+        <div class="modifier-label">
+          <input type="checkbox" class="mod-checkbox" value="Extra Sauce" data-price="3"> Extra Sauce
+        </div>
+        <div class="modifier-price">+₵3.00</div>
+      </label>
+    `;
+    updateModalPrice();
+    // Attach change listeners to checkboxes
+    document.querySelectorAll('.mod-checkbox').forEach(cb => cb.addEventListener('change', updateModalPrice));
+    // Show modal
+    productOverlay.style.display = 'block';
+    setTimeout(() => productModal.classList.add('open'), 10);
+  }
+
+  function updateModalPrice() {
+    let total = currentProduct.price;
+    document.querySelectorAll('.mod-checkbox:checked').forEach(cb => {
+      total += parseFloat(cb.dataset.price);
+    });
+    modalAddPrice.textContent = `₵${total.toFixed(2)}`;
+  }
+
+  function closeProductModal() {
+    productModal.classList.remove('open');
+    setTimeout(() => productOverlay.style.display = 'none', 300);
+  }
+
+  // Add to cart from modal
+  addToCartModalBtn.addEventListener('click', () => {
+    const modifiers = [];
+    let extraCost = 0;
+    document.querySelectorAll('.mod-checkbox:checked').forEach(cb => {
+      modifiers.push(cb.value);
+      extraCost += parseFloat(cb.dataset.price);
+    });
+    const notes = specialNotes.value.trim();
+    const finalPrice = currentProduct.price + extraCost;
+    // Add to cart
+    cart.push({
+      id: currentProduct.id,
+      name: currentProduct.name,
+      price: finalPrice,
+      modifiers,
+      notes
+    });
+    // Fly animation from modal button to floating cart bar
+    const btnRect = addToCartModalBtn.getBoundingClientRect();
+    const cartRect = floatingCart.getBoundingClientRect();
+    flyAnimation(currentProduct.image, btnRect, cartRect);
+    updateCartUI();
+    closeProductModal();
+  });
+
+  // ============ FLY ANIMATION ============
+  function flyAnimation(imgSrc, fromRect, toRect) {
+    const startX = fromRect.left + fromRect.width / 2;
+    const startY = fromRect.top + fromRect.height / 2;
+    const endX = toRect.left + toRect.width / 2;
+    const endY = toRect.top + toRect.height / 2;
+
+    const flyEl = document.createElement('img');
+    flyEl.src = imgSrc;
+    flyEl.className = 'fly-item';
+    flyEl.style.width = '40px';
+    flyEl.style.height = '40px';
+    flyEl.style.left = startX - 20 + 'px';
+    flyEl.style.top = startY - 20 + 'px';
+    flyEl.style.opacity = '0.9';
+    document.body.appendChild(flyEl);
+
+    flyEl.getBoundingClientRect(); // force reflow
+    flyEl.style.left = endX - 20 + 'px';
+    flyEl.style.top = endY - 20 + 'px';
+    flyEl.style.width = '20px';
+    flyEl.style.height = '20px';
+    flyEl.style.opacity = '0.6';
+
+    flyEl.addEventListener('transitionend', () => flyEl.remove());
+  }
+
+  // ============ CART LOGIC ============
+  function updateCartUI() {
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const count = cart.length;
+    if (count > 0) {
+      floatingCart.style.display = 'flex';
+      cartCountBadge.textContent = `${count} item${count !== 1 ? 's' : ''}`;
+      cartTotalBadge.textContent = `₵${total.toFixed(2)}`;
+    } else {
+      floatingCart.style.display = 'none';
+    }
+    // Update checkout total as well
+    checkoutTotal.textContent = `₵${total.toFixed(2)}`;
+    renderCheckoutItems();
+  }
+
+  function renderCheckoutItems() {
+    checkoutItems.innerHTML = '';
+    cart.forEach(item => {
+      const div = document.createElement('div');
+      div.style.cssText = 'display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px;';
+      let desc = item.name;
+      if (item.modifiers.length) desc += ` (${item.modifiers.join(', ')})`;
+      if (item.notes) desc += ` *${item.notes}*`;
+      div.innerHTML = `<span>${desc}</span><span>₵${item.price.toFixed(2)}</span>`;
+      checkoutItems.appendChild(div);
+    });
+  }
+
+  // ============ CHECKOUT MODAL ============
+  let orderType = 'Takeaway';
+  // if table number exists, default to dine-in
+  if (tableNumber) {
+    orderType = 'Dine-in';
+    // Adjust the tabs
+    document.getElementById('orderTypeTabs').innerHTML = `
+      <div class="tab active" data-type="Dine-in">Dine-in (Table ${tableNumber})</div>
+      <div class="tab" data-type="Takeaway">Takeaway</div>
+      <div class="tab" data-type="Delivery">Delivery</div>
+    `;
+  } else {
+    document.getElementById('orderTypeTabs').innerHTML = `
+      <div class="tab active" data-type="Takeaway">Takeaway</div>
+      <div class="tab" data-type="Delivery">Delivery</div>
+    `;
+  }
+  // reattach tab listeners
+  document.querySelectorAll('#orderTypeTabs .tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('#orderTypeTabs .tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      orderType = this.dataset.type;
+    });
+  });
+
+  function openCheckoutModal() {
+    checkoutOverlay.style.display = 'block';
+    setTimeout(() => checkoutModal.classList.add('open'), 10);
+    // Pre-fill name/phone if previously entered?
+  }
+
+  function closeCheckoutModal() {
+    checkoutModal.classList.remove('open');
+    setTimeout(() => checkoutOverlay.style.display = 'none', 300);
+  }
+
+  // ============ SEND WHATSAPP ORDER ============
+  function sendOrderToWhatsApp() {
+    const name = custName.value.trim();
+    const phone = custPhone.value.trim();
+    if (!name || !phone) {
+      alert("Please enter your name and phone number.");
+      return;
+    }
+
+    let total = cart.reduce((sum, item) => sum + item.price, 0);
+    let message = `*NEW ORDER* 🚨\n\n*From:* ${name}\n*Phone:* ${phone}\n*Type:* ${orderType}\n`;
+    if (tableNumber) {
+      message += `*Table:* ${tableNumber}\n`;
+    }
+    message += `\n*Order Details:*\n`;
+    cart.forEach(item => {
+      message += `-----------------------\n• ${item.name} - ₵${item.price.toFixed(2)}`;
+      if (item.modifiers.length) message += `\n   Add-ons: ${item.modifiers.join(', ')}`;
+      if (item.notes) message += `\n   Note: ${item.notes}`;
+      message += '\n';
+    });
+    message += `-----------------------\n*TOTAL: ₵${total.toFixed(2)}*\n\nI am ready to pay.`;
+
+    const encoded = encodeURIComponent(message);
+    window.open(`https://wa.me/${merchantWhatsApp}?text=${encoded}`, '_blank');
+  }
+
+  // ============ INITIAL RENDER ============
+  renderMenu(menuItems);
+  updateCartUI();
+</script>
+
+</body>
+</html>

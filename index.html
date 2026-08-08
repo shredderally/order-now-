@@ -411,7 +411,7 @@
 
         <div class="floating-cart" id="floating-cart" onclick="openCartModal()">
             <span id="floating-cart-text">0 items</span>
-            <span id="floating-cart-total">GH¢0.00</span>
+            <span id="floating-cart-total">GHÂ¢0.00</span>
         </div>
 
         <div class="overlay" id="product-overlay" onclick="closeProductModal(event)">
@@ -493,7 +493,7 @@
                             <h3 class="product-name">${p.name}</h3>
                             <p class="product-desc">${p.desc}</p>
                         </div>
-                        <div class="product-price">GH¢${p.price.toFixed(2)}</div>
+                        <div class="product-price">GHÂ¢${p.price.toFixed(2)}</div>
                     </div>
                 </div>
             `).join('');
@@ -528,7 +528,7 @@
                             <label class="checkbox-label">
                                 <span>${opt.name}</span>
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span>+GH¢${opt.price.toFixed(2)}</span>
+                                    <span>+GHÂ¢${opt.price.toFixed(2)}</span>
                                     <input type="radio" name="modal-option" ${selectedOption === idx ? 'checked' : ''} onclick="selectOption(${idx})">
                                 </div>
                             </label>
@@ -547,7 +547,7 @@
                 <img src="${activeProduct.image}" class="modal-header-img">
                 <h2 style="margin: 0 0 4px 0; font-size: 1.2rem;">${activeProduct.name}</h2>
                 <p style="margin: 0 0 10px 0; font-size: 0.8rem; color: var(--text-muted);">${activeProduct.desc}</p>
-                <div style="font-weight: 700; color: #059669; font-size: 1.1rem;">GH¢${activeProduct.price.toFixed(2)}</div>
+                <div style="font-weight: 700; color: #059669; font-size: 1.1rem;">GHÂ¢${activeProduct.price.toFixed(2)}</div>
                 
                 ${optionsHTML}
 
@@ -562,7 +562,7 @@
                         <span class="qty-value">${modalQty}</span>
                         <button class="qty-btn" onclick="adjustModalQty(1)">+</button>
                     </div>
-                    <button class="primary-btn" onclick="addToCartFromModal()">Add to Cart - GH¢${calculatedPrice.toFixed(2)}</button>
+                    <button class="primary-btn" onclick="addToCartFromModal()">Add to Cart - GHÂ¢${calculatedPrice.toFixed(2)}</button>
                 </div>
             `;
         }
@@ -633,7 +633,7 @@
             if (totalItems > 0) {
                 floating.classList.add('visible');
                 document.getElementById('floating-cart-text').innerText = `${totalItems} item${totalItems > 1 ? 's' : ''}`;
-                document.getElementById('floating-cart-total').innerText = `GH¢${subtotal.toFixed(2)}`;
+                document.getElementById('floating-cart-total').innerText = `GHÂ¢${subtotal.toFixed(2)}`;
             } else {
                 floating.classList.remove('visible');
                 document.getElementById('cart-overlay').classList.remove('active');
@@ -676,7 +676,7 @@
                         <h4>${item.name}</h4>
                         ${item.option ? `<p>+ ${item.option}</p>` : ''}
                         ${item.notes ? `<p>Note: ${item.notes}</p>` : ''}
-                        <div style="font-weight:700; margin-top:4px;">GH¢${item.totalPrice.toFixed(2)}</div>
+                        <div style="font-weight:700; margin-top:4px;">GHÂ¢${item.totalPrice.toFixed(2)}</div>
                     </div>
                     <div class="qty-selector">
                         <button class="qty-btn" onclick="adjustCartQty(${item.cartId}, -1)">-</button>
@@ -714,10 +714,10 @@
 
                 <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.1rem; margin: 1rem 0; padding-top: 8px; border-top: 1px solid var(--border-color);">
                     <span>Total Amount</span>
-                    <span style="color: #059669;">GH¢${grandTotal.toFixed(2)}</span>
+                    <span style="color: #059669;">GHÂ¢${grandTotal.toFixed(2)}</span>
                 </div>
 
-                <button class="primary-btn" style="width:100%; display:block;" onclick="checkoutWhatsApp(${grandTotal.toFixed(2)})">Place Order - GH¢${grandTotal.toFixed(2)}</button>
+                <button class="primary-btn" style="width:100%; display:block;" onclick="checkoutWhatsApp(${grandTotal.toFixed(2)})">Place Order - GHÂ¢${grandTotal.toFixed(2)}</button>
             `;
         }
 
@@ -741,12 +741,12 @@
             cart.forEach(item => {
                 msg += `${item.qty}x ${item.name}`;
                 if(item.option) msg += ` (${item.option})`;
-                msg += ` - GH¢${item.totalPrice.toFixed(2)}%0A`;
+                msg += ` - GHÂ¢${item.totalPrice.toFixed(2)}%0A`;
                 if(item.notes) msg += `Note: ${item.notes}%0A`;
             });
 
             msg += `-----------------------------------%0A`;
-            msg += `*Total: GH¢${grandTotal}*`;
+            msg += `*Total: GHÂ¢${grandTotal}*`;
 
             const phone = "233504186141";
             window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');

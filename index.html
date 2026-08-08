@@ -406,7 +406,7 @@
         </main>
 
         <div class="powered-footer">
-            Powered by <strong>orderzech</strong>
+            Powered by <strong>menuboxgh</strong>
         </div>
 
         <div class="floating-cart" id="floating-cart" onclick="openCartModal()">
@@ -740,7 +740,7 @@
             
             cart.forEach(item => {
                 msg += `${item.qty}x ${item.name}`;
-                if(item.option) msg += ` (${item.option})`;
+                if(item.optionc) msg += ` (${item.option})`;
                 msg += ` - GH¢${item.totalPrice.toFixed(2)}%0A`;
                 if(item.notes) msg += `Note: ${item.notes}%0A`;
             });

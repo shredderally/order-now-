@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
+<title>Restaurant Menu | MenuBoxGh</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --black: #111111;
+    --dark: #181818;
+    --gray: #707070;
+    --light: #f5f5f5;
+    --white: #ffffff;
+    --border: #e8e8e8;
+    --accent: #111111;
+    --green: #25D366;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f6f6f6;
+    color: var(--black);
+    line-height: 1.4;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    background: var(--white);
+}
+
+.cover {
+    width: 100%;
+    height: 190px;
+    background: #ddd;
+    overflow: hidden;
+}
+
+.cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.restaurant-info {
+    padding: 0 18px 18px;
+    position: relative;
+}
+
+.logo {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    border: 4px solid white;
+    background: white;
+    object-fit: cover;
+    margin-top: -39px;
+    position: relative;
+}
+
+.restaurant-name {
+    font-size: 24px;
+    font-weight: 800;
+    margin-top: 8px;
+}
+
+.restaurant-meta {
+    color: var(--gray);
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22a447;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.container {
+    max-width: 680px;
+    margin: auto;
+    padding: 14px 14px 110px;
+}
+
+/* SEARCH */
+
+.search-box {
+    position: relative;
+    margin-bottom: 14px;
+}
+
+.search-box input {
+    width: 100%;
+    height: 48px;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 0 16px;
+    font-size: 15px;
+    outline: none;
+    background: white;
+}
+
+.search-box input:focus {
+    border-color: #999;
+}
+
+/* CATEGORIES */
+
+.categories {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 7px;
+    margin-bottom: 20px;
+    scrollbar-width: none;
+}
+
+.categories::-webkit-scrollbar {
+    display: none;
+}
+
+.category-btn {
+    white-space: nowrap;
+    border: 1px solid var(--border);
+    background: white;
+    color: #555;
+    border-radius: 30px;
+    padding: 9px 15px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.category-btn.active {
+    background: var(--black);
+    color: white;
+    border-color: var(--black);
+}
+
+/* MENU SECTION */
+
+.menu-section {
+    margin-bottom: 25px;
+}
+
+.section-title {
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 11px;
+}
+
+/* DISH CARD */
+
+.dish-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 1px solid #ededed;
+}
+
+.dish-image {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    display: block;
+    background: #eee;
+}
+
+.dish-content {
+    padding: 13px;
+}
+
+.dish-name {
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.dish-description {
+    color: var(--gray);
+    font-size: 13px;
+    margin-top: 4px;
+    line-height: 1.45;
+}
+
+.dish-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 13px;
+}
+
+.dish-price {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.add-btn {
+    min-width: 76px;
+    height: 38px;
+    border: none;
+    background: var(--black);
+    color: white;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.add-btn:active {
+    transform: scale(.97);
+}
+
+/* QUANTITY CONTROL */
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-control button {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 9px;
+    background: #eeeeee;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.quantity-number {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* EMPTY SEARCH */
+
+.empty-state {
+    background: white;
+    border-radius: 15px;
+    padding: 35px 20px;
+    text-align: center;
+    color: var(--gray);
+}
+
+/* =========================
+   CART BAR
+========================= */
+
+.cart-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    width: calc(100% - 24px);
+    max-width: 650px;
+    background: var(--black);
+    color: white;
+    border-radius: 16px;
+    padding: 9px;
+    z-index: 50;
+    box-shadow: 0 8px 30px rgba(0,0,0,.22);
+}
+
+.cart-bar button {
+    width: 100%;
+    min-height: 52px;
+    border: none;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 9px;
+}
+
+.cart-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cart-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #292929;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+
+.cart-count {
+    font-size: 12px;
+    color: #ccc;
+}
+
+.cart-total {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.view-order {
+    background: white;
+    color: black;
+    border-radius: 9px;
+    padding: 10px 13px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    z-index: 100;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal {
+    width: 100%;
+    max-width: 680px;
+    max-height: 92vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 22px 22px 0 0;
+    padding: 20px 17px 30px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.modal-title {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.close-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #eee;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* CART ITEMS */
+
+.cart-item {
+    display: flex;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.cart-item-image {
+    width: 65px;
+    height: 65px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-name {
+    font-weight: 750;
+}
+
+.cart-item-price {
+    color: var(--gray);
+    font-size: 13px;
+    margin-top: 3px;
+}
+
+.cart-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 7px;
+}
+
+.cart-item-controls button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: #eee;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.cart-summary {
+    padding: 18px 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 7px;
+}
+
+.summary-total {
+    font-size: 19px;
+    font-weight: 800;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+
+/* =========================
+   ORDER FORM
+========================= */
+
+.form-section {
+    margin-top: 20px;
+}
+
+.form-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 11px;
+}
+
+.order-types {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.order-type {
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 12px;
+    padding: 13px 5px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.order-type.active {
+    background: var(--black);
+    color: white;
+    border-color: var(--black);
+}
+
+.input-group {
+    margin-top: 12px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.input-group input,
+.input-group textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+}
+
+.input-group textarea {
+    min-height: 85px;
+    resize: vertical;
+}
+
+.hidden {
+    display: none;
+}
+
+/* WHATSAPP */
+
+.whatsapp-btn {
+    width: 100%;
+    min-height: 54px;
+    border: none;
+    border-radius: 13px;
+    background: var(--green);
+    color: white;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.whatsapp-btn:active {
+    transform: scale(.98);
+}
+
+/* FOOTER */
+
+.footer {
+    text-align: center;
+    padding: 25px 15px 100px;
+    color: #888;
+    font-size: 12px;
+}
+
+.footer a {
+    color: #555;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+/* DESKTOP ONLY AS A SECONDARY EXPERIENCE */
+
+@media (min-width: 700px) {
+    .cover {
+        height: 260px;
+    }
+
+    .container {
+        padding-top: 20px;
+    }
+
+    .dish-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .dish-card {
+        margin-bottom: 0;
+    }
+
+    .dish-image {
+        height: 180px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     RESTAURANT HEADER
+========================= -->
+
+<header class="header">
+
+    <div class="cover">
+        <img id="coverImage" src="images/cover.jpg" alt="Restaurant cover">
+    </div>
+
+    <div class="restaurant-info">
+
+        <img id="restaurantLogo"
+             class="logo"
+             src="images/logo.jpg"
+             alt="Restaurant logo">
+
+        <h1 id="restaurantName" class="restaurant-name">
+            Restaurant Name
+        </h1>
+
+        <div id="restaurantLocation" class="restaurant-meta">
+            Accra, Ghana
+        </div>
+
+        <div id="restaurantHours" class="restaurant-meta">
+            10:00 AM - 10:00 PM
+        </div>
+
+        <div class="status">
+            <span class="status-dot"></span>
+            <span id="restaurantStatus">Open</span>
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    <!-- SEARCH -->
+
+    <div class="search-box">
+        <input
+            id="searchInput"
+            type="search"
+            placeholder="Search menu..."
+            autocomplete="off">
+    </div>
+
+
+    <!-- CATEGORIES -->
+
+    <div id="categories" class="categories"></div>
+
+
+    <!-- MENU -->
+
+    <div id="menuContainer"></div>
+
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+
+        <a
+            href="https://menuboxgh.vercel.app/"
+            target="_blank"
+            rel="noopener">
+            Powered by MenuBoxGh
+        </a>
+
+    </footer>
+
+</main>
+
+
+<!-- =========================
+     CART BAR
+========================= -->
+
+<div id="cartBar" class="cart-bar" style="display:none;">
+
+    <button onclick="openCart()">
+
+        <div class="cart-left">
+
+            <div class="cart-icon">
+                🛒
+            </div>
+
+            <div>
+                <div>
+                    <span id="cartCount">0</span> items
+                </div>
+
+                <div class="cart-count">
+                    View your order
+                </div>
+            </div>
+
+        </div>
+
+        <div>
+
+            <span id="cartTotal" class="cart-total">
+                GHS 0
+            </span>
+
+            <span class="view-order">
+                VIEW ORDER
+            </span>
+
+        </div>
+
+    </button>
+
+</div>
+
+
+<!-- =========================
+     CART MODAL
+========================= -->
+
+<div id="cartModal" class="modal-overlay">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div class="modal-title">
+                Your Order
+            </div>
+
+            <button
+                class="close-btn"
+                onclick="closeCart()">
+                ×
+            </button>
+
+        </div>
+
+
+        <div id="cartItems"></div>
+
+
+        <div class="cart-summary">
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <strong id="subtotal">GHS 0</strong>
+            </div>
+
+            <div
+                id="deliveryRow"
+                class="summary-row hidden">
+
+                <span>Delivery</span>
+
+                <strong id="deliveryFee">
+                    GHS 0
+                </strong>
+
+            </div>
+
+            <div class="summary-row summary-total">
+
+                <span>Total</span>
+
+                <strong id="grandTotal">
+                    GHS 0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- ORDER TYPE -->
+
+        <div class="form-section">
+
+            <div class="form-title">
+                How are you ordering?
+            </div>
+
+            <div class="order-types">
+
+                <div
+                    class="order-type active"
+                    data-type="Dine-in"
+                    onclick="selectOrderType(this)">
+                    Dine-in
+                </div>
+
+                <div
+                    class="order-type"
+                    data-type="Takeaway"
+                    onclick="selectOrderType(this)">
+                    Takeaway
+                </div>
+
+                <div
+                    class="order-type"
+                    data-type="Delivery"
+                    onclick="selectOrderType(this)">
+                    Delivery
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- DINE-IN -->
+
+        <div id="dineInFields">
+
+            <div class="input-group">
+
+                <label>
+                    Table number
+                </label>
+
+                <input
+                    id="tableNumber"
+                    type="text"
+                    placeholder="e.g. 12">
+
+            </div>
+
+        </div>
+
+
+        <!-- CUSTOMER -->
+
+        <div class="form-section">
+
+            <div class="form-title">
+                Customer details
+            </div>
+
+            <div class="input-group">
+
+                <label>
+                    Name
+                </label>
+
+                <input
+                    id="customerName"
+                    type="text"
+                    placeholder="Your name">
+
+            </div>
+
+            <div class="input-group">
+
+                <label>
+                    Phone
+                </label>
+
+                <input
+                    id="customerPhone"
+                    type="tel"
+                    placeholder="024 XXX XXXX">
+
+            </div>
+
+        </div>
+
+
+        <!-- DELIVERY -->
+
+        <div id="deliveryFields" class="hidden">
+
+            <div class="input-group">
+
+                <label>
+                    Delivery address
+                </label>
+
+                <textarea
+                    id="deliveryAddress"
+                    placeholder="Enter your delivery location"></textarea>
+
+            </div>
+
+        </div>
+
+
+        <!-- NOTES -->
+
+        <div class="input-group">
+
+            <label>
+                Additional note
+            </label>
+
+            <textarea
+                id="orderNote"
+                placeholder="Optional"></textarea>
+
+        </div>
+
+
+        <button
+            class="whatsapp-btn"
+            onclick="sendOrder()">
+
+            SEND ORDER ON WHATSAPP
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   RESTAURANT CONFIGURATION
+
+   CHANGE THESE DETAILS FOR EACH RESTAURANT.
+===================================================== */
+
+const restaurant = {
+
+    name: "Example Restaurant",
+
+    logo: "images/logo.jpg",
+
+    cover: "images/cover.jpg",
+
+    location: "Accra, Ghana",
+
+    openingTime: "10:00 AM",
+
+    closingTime: "10:00 PM",
+
+    /*
+       IMPORTANT:
+
+       Use the international WhatsApp number
+       without + or spaces.
+
+       Ghana example:
+
+       233241234567
+    */
+
+    whatsapp: "233539491610",
+
+    /*
+       Delivery fee.
+
+       Set to 0 if restaurant handles
+       delivery fees separately.
+    */
+
+    deliveryFee: 20,
+
+    menu: [
+
+        {
+            id: 1,
+            name: "Jollof Rice",
+            description: "Served with chicken, salad and shito.",
+            price: 45,
+            category: "Main Meals",
+            image: "images/jollof.jpg"
+        },
+
+        {
+            id: 2,
+            name: "Fried Rice",
+            description: "Fried rice served with chicken and vegetables.",
+            price: 50,
+            category: "Main Meals",
+            image: "images/fried-rice.jpg"
+        },
+
+        {
+            id: 3,
+            name: "Chicken Wings",
+            description: "Crispy seasoned chicken wings.",
+            price: 40,
+            category: "Sides",
+            image: "images/wings.jpg"
+        },
+
+        {
+            id: 4,
+            name: "French Fries",
+            description: "Crispy golden fries.",
+            price: 25,
+            category: "Sides",
+            image: "images/fries.jpg"
+        },
+
+        {
+            id: 5,
+            name: "Coca-Cola",
+            description: "Chilled Coca-Cola.",
+            price: 15,
+            category: "Drinks",
+            image: "images/coke.jpg"
+        },
+
+        {
+            id: 6,
+            name: "Bottled Water",
+            description: "Cold bottled water.",
+            price: 8,
+            category: "Drinks",
+            image: "images/water.jpg"
+        },
+        
+        {
+             id: 7,
+            name: " coconut",
+            description: "natural coconut juice.",
+            price: 8,
+            category: "Drinks",
+            image: "images/water.jpg"
+        }
+
+    ]
+
+};
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let cart = [];
+
+let selectedCategory = "All";
+
+let selectedOrderType = "Dine-in";
+
+
+/* =====================================================
+   INITIALIZE RESTAURANT
+===================================================== */
+
+document.getElementById("restaurantName").textContent =
+    restaurant.name;
+
+document.getElementById("restaurantLocation").textContent =
+    restaurant.location;
+
+document.getElementById("restaurantHours").textContent =
+    restaurant.openingTime + " - " + restaurant.closingTime;
+
+document.getElementById("restaurantLogo").src =
+    restaurant.logo;
+
+document.getElementById("coverImage").src =
+    restaurant.cover;
+
+
+/* =====================================================
+   OPEN / CLOSED STATUS
+
+   Uses the visitor's local device time.
+===================================================== */
+
+function updateRestaurantStatus() {
+
+    const status = document.getElementById("restaurantStatus");
+
+    const now = new Date();
+
+    const currentMinutes =
+        now.getHours() * 60 + now.getMinutes();
+
+    const openMinutes =
+        convertTimeToMinutes(restaurant.openingTime);
+
+    const closeMinutes =
+        convertTimeToMinutes(restaurant.closingTime);
+
+    let isOpen;
+
+    if (closeMinutes > openMinutes) {
+
+        isOpen =
+            currentMinutes >= openMinutes &&
+            currentMinutes < closeMinutes;
+
+    } else {
+
+        isOpen =
+            currentMinutes >= openMinutes ||
+            currentMinutes < closeMinutes;
+
+    }
+
+    status.textContent =
+        isOpen ? "Open" : "Closed";
+
+}
+
+
+function convertTimeToMinutes(timeString) {
+
+    const parts = timeString
+        .trim()
+        .split(" ");
+
+    const time = parts[0];
+    const modifier = parts[1];
+
+    let [hours, minutes] =
+        time.split(":").map(Number);
+
+    if (modifier === "PM" && hours !== 12) {
+        hours += 12;
+    }
+
+    if (modifier === "AM" && hours === 12) {
+        hours = 0;
+    }
+
+    return hours * 60 + minutes;
+
+}
+
+
+updateRestaurantStatus();
+
+
+/* =====================================================
+   CATEGORIES
+===================================================== */
+
+function renderCategories() {
+
+    const container =
+        document.getElementById("categories");
+
+    const categories = [
+        "All",
+        ...new Set(
+            restaurant.menu.map(item => item.category)
+        )
+    ];
+
+    container.innerHTML = "";
+
+    categories.forEach(category => {
+
+        const button =
+            document.createElement("button");
+
+        button.className =
+            "category-btn" +
+            (category === selectedCategory
+                ? " active"
+                : "");
+
+        button.textContent = category;
+
+        button.onclick = () => {
+
+            selectedCategory = category;
+
+            renderCategories();
+            renderMenu();
+
+        };
+
+        container.appendChild(button);
+
+    });
+
+}
+
+
+/* =====================================================
+   MENU
+===================================================== */
+
+function renderMenu(searchTerm = "") {
+
+    const container =
+        document.getElementById("menuContainer");
+
+    container.innerHTML = "";
+
+    let filteredMenu =
+        restaurant.menu.filter(item => {
+
+            const matchesCategory =
+                selectedCategory === "All" ||
+                item.category === selectedCategory;
+
+            const search =
+                searchTerm.toLowerCase();
+
+            const matchesSearch =
+                item.name.toLowerCase().includes(search) ||
+                item.description.toLowerCase().includes(search);
+
+            return matchesCategory && matchesSearch;
+
+        });
+
+
+    if (filteredMenu.length === 0) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                No dishes found.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    /*
+       Group dishes by category.
+    */
+
+    const grouped = {};
+
+    filteredMenu.forEach(item => {
+
+        if (!grouped[item.category]) {
+            grouped[item.category] = [];
+        }
+
+        grouped[item.category].push(item);
+
+    });
+
+
+    Object.keys(grouped).forEach(category => {
+
+        const section =
+            document.createElement("section");
+
+        section.className =
+            "menu-section";
+
+        section.innerHTML = `
+            <h2 class="section-title">
+                ${category}
+            </h2>
+
+            <div class="dish-grid"></div>
+        `;
+
+
+        const grid =
+            section.querySelector(".dish-grid");
+
+
+        grouped[category].forEach(item => {
+
+            const quantity =
+                getQuantity(item.id);
+
+            const card =
+                document.createElement("article");
+
+            card.className =
+                "dish-card";
+
+
+            card.innerHTML = `
+
+                <img
+                    class="dish-image"
+                    src="${item.image}"
+                    alt="${escapeHTML(item.name)}"
+                    loading="lazy"
+                    onerror="this.style.display='none'">
+
+                <div class="dish-content">
+
+                    <div class="dish-name">
+                        ${escapeHTML(item.name)}
+                    </div>
+
+                    <div class="dish-description">
+                        ${escapeHTML(item.description)}
+                    </div>
+
+                    <div class="dish-bottom">
+
+                        <div class="dish-price">
+                            GHS ${formatMoney(item.price)}
+                        </div>
+
+                        ${
+                            quantity > 0
+
+                            ? `
+
+                            <div class="quantity-control">
+
+                                <button
+                                    onclick="changeQuantity(${item.id}, -1)">
+                                    −
+                                </button>
+
+                                <span class="quantity-number">
+                                    ${quantity}
+                                </span>
+
+                                <button
+                                    onclick="changeQuantity(${item.id}, 1)">
+                                    +
+                                </button>
+
+                            </div>
+
+                            `
+
+                            :
+
+                            `
+
+                            <button
+                                class="add-btn"
+                                onclick="addToCart(${item.id})">
+                                Add
+                            </button>
+
+                            `
+                        }
+
+                    </div>
+
+                </div>
+            `;
+
+
+            grid.appendChild(card);
+
+        });
+
+
+        container.appendChild(section);
+
+    });
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+document
+    .getElementById("searchInput")
+    .addEventListener("input", function() {
+
+        renderMenu(this.value);
+
+    });
+
+
+/* =====================================================
+   CART FUNCTIONS
+===================================================== */
+
+function addToCart(id) {
+
+    const existing =
+        cart.find(item => item.id === id);
+
+    if (existing) {
+
+        existing.quantity++;
+
+    } else {
+
+        const product =
+            restaurant.menu.find(item => item.id === id);
+
+        if (!product) return;
+
+        cart.push({
+            ...product,
+            quantity: 1
+        });
+
+    }
+
+    updateCart();
+
+    renderMenu(
+        document.getElementById("searchInput").value
+    );
+
+}
+
+
+function changeQuantity(id, amount) {
+
+    const item =
+        cart.find(item => item.id === id);
+
+    if (!item) return;
+
+    item.quantity += amount;
+
+    if (item.quantity <= 0) {
+
+        cart =
+            cart.filter(item => item.id !== id);
+
+    }
+
+    updateCart();
+
+    renderMenu(
+        document.getElementById("searchInput").value
+    );
+
+}
+
+
+function getQuantity(id) {
+
+    const item =
+        cart.find(item => item.id === id);
+
+    return item ? item.quantity : 0;
+
+}
+
+
+/* =====================================================
+   CART TOTALS
+===================================================== */
+
+function getSubtotal() {
+
+    return cart.reduce(
+        (total, item) =>
+            total + item.price * item.quantity,
+        0
+    );
+
+}
+
+
+function getGrandTotal() {
+
+    let total =
+        getSubtotal();
+
+    if (
+        selectedOrderType === "Delivery" &&
+        restaurant.deliveryFee > 0
+    ) {
+
+        total += restaurant.deliveryFee;
+
+    }
+
+    return total;
+
+}
+
+
+function updateCart() {
+
+    const count =
+        cart.reduce(
+            (total, item) =>
+                total + item.quantity,
+            0
+        );
+
+    const subtotal =
+        getSubtotal();
+
+    document.getElementById("cartCount")
+        .textContent = count;
+
+    document.getElementById("cartTotal")
+        .textContent =
+        "GHS " + formatMoney(getGrandTotal());
+
+
+    const cartBar =
+        document.getElementById("cartBar");
+
+    cartBar.style.display =
+        count > 0 ? "block" : "none";
+
+}
+
+
+/* =====================================================
+   OPEN CART
+===================================================== */
+
+function openCart() {
+
+    if (cart.length === 0) return;
+
+    renderCart();
+
+    document
+        .getElementById("cartModal")
+        .classList.add("show");
+
+    document.body.style.overflow = "hidden";
+
+}
+
+
+function closeCart() {
+
+    document
+        .getElementById("cartModal")
+        .classList.remove("show");
+
+    document.body.style.overflow = "";
+
+}
+
+
+/* =====================================================
+   RENDER CART
+===================================================== */
+
+function renderCart() {
+
+    const container =
+        document.getElementById("cartItems");
+
+    container.innerHTML = "";
+
+
+    cart.forEach(item => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "cart-item";
+
+        div.innerHTML = `
+
+            <img
+                class="cart-item-image"
+                src="${item.image}"
+                alt="${escapeHTML(item.name)}">
+
+            <div class="cart-item-info">
+
+                <div class="cart-item-name">
+                    ${escapeHTML(item.name)}
+                </div>
+
+                <div class="cart-item-price">
+                    GHS ${formatMoney(item.price)}
+                    each
+                </div>
+
+                <div class="cart-item-controls">
+
+                    <button
+                        onclick="changeQuantity(${item.id}, -1)">
+                        −
+                    </button>
+
+                    <strong>
+                        ${item.quantity}
+                    </strong>
+
+                    <button
+                        onclick="changeQuantity(${item.id}, 1)">
+                        +
+                    </button>
+
+                </div>
+
+            </div>
+
+            <strong>
+                GHS ${formatMoney(
+                    item.price * item.quantity
+                )}
+            </strong>
+
+        `;
+
+        container.appendChild(div);
+
+    });
+
+
+    const subtotal =
+        getSubtotal();
+
+    document.getElementById("subtotal")
+        .textContent =
+        "GHS " + formatMoney(subtotal);
+
+
+    const deliveryRow =
+        document.getElementById("deliveryRow");
+
+
+    if (
+        selectedOrderType === "Delivery" &&
+        restaurant.deliveryFee > 0
+    ) {
+
+        deliveryRow.classList.remove("hidden");
+
+        document.getElementById("deliveryFee")
+            .textContent =
+            "GHS " +
+            formatMoney(
+                restaurant.deliveryFee
+            );
+
+    } else {
+
+        deliveryRow.classList.add("hidden");
+
+    }
+
+
+    document.getElementById("grandTotal")
+        .textContent =
+        "GHS " +
+        formatMoney(getGrandTotal());
+
+}
+
+
+/* =====================================================
+   ORDER TYPE
+===================================================== */
+
+function selectOrderType(element) {
+
+    document
+        .querySelectorAll(".order-type")
+        .forEach(button => {
+
+            button.classList.remove("active");
+
+        });
+
+
+    element.classList.add("active");
+
+
+    selectedOrderType =
+        element.dataset.type;
+
+
+    const dineInFields =
+        document.getElementById("dineInFields");
+
+    const deliveryFields =
+        document.getElementById("deliveryFields");
+
+
+    if (selectedOrderType === "Dine-in") {
+
+        dineInFields.classList.remove("hidden");
+
+    } else {
+
+        dineInFields.classList.add("hidden");
+
+    }
+
+
+    if (selectedOrderType === "Delivery") {
+
+        deliveryFields.classList.remove("hidden");
+
+    } else {
+
+        deliveryFields.classList.add("hidden");
+
+    }
+
+
+    renderCart();
+
+    updateCart();
+
+}
+
+
+/* =====================================================
+   SEND ORDER TO WHATSAPP
+===================================================== */
+
+function sendOrder() {
+
+    if (cart.length === 0) {
+
+        alert("Your cart is empty.");
+
+        return;
+
+    }
+
+
+    const customerName =
+        document.getElementById("customerName")
+            .value.trim();
+
+
+    const customerPhone =
+        document.getElementById("customerPhone")
+            .value.trim();
+
+
+    const tableNumber =
+        document.getElementById("tableNumber")
+            .value.trim();
+
+
+    const deliveryAddress =
+        document.getElementById("deliveryAddress")
+            .value.trim();
+
+
+    const orderNote =
+        document.getElementById("orderNote")
+            .value.trim();
+
+
+    /*
+       Basic validation.
+    */
+
+    if (!customerName) {
+
+        alert("Please enter your name.");
+
+        return;
+
+    }
+
+
+    if (!customerPhone) {
+
+        alert("Please enter your phone number.");
+
+        return;
+
+    }
+
+
+    if (
+        selectedOrderType === "Dine-in" &&
+        !tableNumber
+    ) {
+
+        alert("Please enter your table number.");
+
+        return;
+
+    }
+
+
+    if (
+        selectedOrderType === "Delivery" &&
+        !deliveryAddress
+    ) {
+
+        alert("Please enter your delivery address.");
+
+        return;
+
+    }
+
+
+    /*
+       Build WhatsApp message.
+    */
+
+    let message =
+
+`Hello ${restaurant.name},
+
+I would like to place an order.
+
+ORDER:
+`;
+
+
+    cart.forEach(item => {
+
+        const itemTotal =
+            item.price * item.quantity;
+
+        message +=
+            `• ${item.name} × ${item.quantity} - GHS ${formatMoney(itemTotal)}\n`;
+
+    });
+
+
+    message +=
+        `\nSubtotal: GHS ${formatMoney(getSubtotal())}`;
+
+
+    if (
+        selectedOrderType === "Delivery" &&
+        restaurant.deliveryFee > 0
+    ) {
+
+        message +=
+            `\nDelivery: GHS ${formatMoney(restaurant.deliveryFee)}`;
+
+    }
+
+
+    message +=
+        `\nTotal: GHS ${formatMoney(getGrandTotal())}`;
+
+
+    message +=
+        `\n\nOrder type: ${selectedOrderType}`;
+
+
+    if (
+        selectedOrderType === "Dine-in"
+    ) {
+
+        message +=
+            `\nTable number: ${tableNumber}`;
+
+    }
+
+
+    if (
+        selectedOrderType === "Delivery"
+    ) {
+
+        message +=
+            `\nDelivery address: ${deliveryAddress}`;
+
+    }
+
+
+    message +=
+        `\n\nCustomer name: ${customerName}`;
+
+
+    message +=
+        `\nCustomer phone: ${customerPhone}`;
+
+
+    if (orderNote) {
+
+        message +=
+            `\n\nNote: ${orderNote}`;
+
+    }
+
+
+    /*
+       Encode message for WhatsApp.
+    */
+
+    const whatsappURL =
+        "https://wa.me/" +
+        restaurant.whatsapp +
+        "?text=" +
+        encodeURIComponent(message);
+
+
+    window.open(
+        whatsappURL,
+        "_blank"
+    );
+
+}
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function formatMoney(number) {
+
+    return Number(number).toLocaleString(
+        "en-GH",
+        {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }
+    );
+
+}
+
+
+function escapeHTML(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+renderCategories();
+
+renderMenu();
+
+updateCart();
+
+
+/*
+   Update restaurant status every minute.
+*/
+
+setInterval(
+    updateRestaurantStatus,
+    60000
+);
+
+
+/*
+   Close modal when clicking outside it.
+*/
+
+document
+    .getElementById("cartModal")
+    .addEventListener("click", function(event) {
+
+        if (event.target === this) {
+
+            closeCart();
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
+.
